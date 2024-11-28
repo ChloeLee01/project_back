@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt")
 exports.postAuth = async (request, response) => {
   const _id = uuid4();
   const { username, email, password } = request.body;
+  console.log(username, email, password);
 
   try {
     const result = await database.pool.query(
