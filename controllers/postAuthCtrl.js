@@ -31,3 +31,13 @@ exports.postAuth = async (request, response) => {
     return response.status(500).json({ msg: "회원정보 입력 오류: ", error });
   }
 };
+
+exports.postLogin = async (request, response) => {
+  const {email, password} = request.body;
+  // console.log(email, password);
+
+  // 1. 이메일 존재 여부 확인
+  // 2. 비밀번호 복호화, 비밀번호 일치 여부 확인
+  // 3. 회원정보 jsonwebtoken 생성
+
+}
