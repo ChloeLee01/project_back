@@ -1,4 +1,4 @@
-const router = require("express").Router(); // express 모듈에서 Router 클래스 import
+const router = require("express").Router();
 const { postAuth, postLogin } = require("../controllers/postAuthCtrl");
 const upload = require("./upload");
 

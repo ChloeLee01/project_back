@@ -1,13 +1,12 @@
 const database = require("../database/database");
 const { v4: uuid4 } = require("uuid"); // 랜덤 문자열 생성 모듈
-const path = require("path"); //경로 지정 모듈
-const fs = require("fs"); //파일 생성 등 컨트롤 모듈
+const path = require("path"); // 경로 지정 모듈
+const fs = require("fs"); // 파일 생성 등 컨트롤 모듈
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const ROOT_PATH = "http://localhost:8000";
 
 exports.postAuth = async (request, response) => {
-  const _id = uuid4();
   const { username, email, password } = request.body;
 
   const profileImage = request.file;
@@ -33,16 +32,16 @@ exports.postAuth = async (request, response) => {
 
     let profileImagePath = null;
 
-    if (profileImage) { // body에 이미지가 들어오게 될 경우
-      const imageExtention = path.extname(profileImage.originalname); // 확장자 추출
-      const imageFileName = `${uuid4()}${imageExtention}`; // 랜덤 문자열 + 확장자 ex) 4568123.jpg
+    if (profileImage) {
+      // body에 이미지가 들어오게 될 경우
+      const imageExtension = path.extname(profileImage.originalname); // 확장자
+      const imageFileName = `${uuid4()}${imageExtension}`; // ex) 1234567890.jpg
       profileImagePath = `${ROOT_PATH}/upload/${imageFileName}`;
 
       fs.writeFileSync(
         path.join(__dirname, "../upload", imageFileName),
         profileImage.buffer // 이미지 버퍼 형식으로 저장
       );
-
     }
 
     await database.pool.query(
@@ -52,7 +51,7 @@ exports.postAuth = async (request, response) => {
 
     return response.status(201).json({ msg: "회원가입이 완료되었습니다." });
   } catch (error) {
-    return response.status(500).json({ msg: "회원정보 입력 오류: ", error });
+    return response.status(500).json({ msg: "회원정보 입력 오류: " + error });
   }
 };
 
@@ -73,10 +72,11 @@ exports.postLogin = async (request, response) => {
         .status(200)
         .json({ msg: "존재하지 않는 사용자 입니다.", success: false });
     }
-    // 2. 비밀번호 복호화, 비밀번호 일치 여부 확인
-    const isMathch = await bcrypt.compare(password, result.rows[0].password); //(입력받은 password 값, database의 암호화 된 password) 둘을 비교해 맞으면 true, 틀리면 false
 
-    if (!isMathch) {
+    // 2. 비밀빈호 복호화, 비밀번호 일치 여부 확인
+    const isMatch = await bcrypt.compare(password, result.rows[0].password); // 첫번째 파라미터는 입력 받은 비밀번호, 두번째 파라미터는 데이터베이스에 있는 암호화된 비밀번호 - 비교해서 맞으면 true, 틀리면 false
+
+    if (!isMatch) {
       // 비밀번호가 틀린경우
       return response
         .status(200)
@@ -90,6 +90,7 @@ exports.postLogin = async (request, response) => {
         id: result.rows[0].id,
         email: result.rows[0].email,
         username: result.rows[0].username,
+        profile_img: result.rows[0].profile_img,
       },
       process.env.JWT_SECRET,
       { expiresIn: "3h" }
@@ -99,6 +100,6 @@ exports.postLogin = async (request, response) => {
 
     return response.status(201).json({ token, msg: "로그인 성공" });
   } catch (error) {
-    return response.status(500).json({ msg: "로그인 실패: ", error });
+    return response.status(500).json({ msg: "로그인 실패: " + error });
   }
 };
