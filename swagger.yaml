@@ -1,0 +1,139 @@
+openapi: 3.0.0
+info:
+  title: Auth API
+  description: 사용자 인증 관련 API 문서
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000
+    description: 개발 서버
+
+paths:
+  /auth/register:
+    post:
+      summary: 회원가입
+      description: 새로운 사용자를 등록합니다.
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: 사용자 이름
+                email:
+                  type: string
+                  format: email
+                  description: 사용자 이메일
+                password:
+                  type: string
+                  format: password
+                  description: 사용자 비밀번호
+                profile_img:
+                  type: string
+                  format: binary
+                  description: 프로필 이미지 (선택사항)
+              required:
+                - username
+                - email
+                - password
+      responses:
+        '201':
+          description: 회원가입 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                    example: "회원가입이 완료되었습니다."
+        '200':
+          description: 이메일 중복
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                    example: "이미 존재하는 이메일 입니다."
+                  success:
+                    type: boolean
+                    example: false
+        '500':
+          description: 서버 에러
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                    example: "회원정보 입력 오류: ..."
+
+  /auth/login:
+    post:
+      summary: 로그인
+      description: 사용자 로그인을 처리합니다.
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: 사용자 이메일
+                password:
+                  type: string
+                  format: password
+                  description: 사용자 비밀번호
+              required:
+                - email
+                - password
+      responses:
+        '201':
+          description: 로그인 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: JWT 토큰
+                  msg:
+                    type: string
+                    example: "로그인 성공"
+        '200':
+          description: 로그인 실패
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                    example: "존재하지 않는 사용자 입니다."
+                  success:
+                    type: boolean
+                    example: false
+        '500':
+          description: 서버 에러
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                    example: "로그인 실패: ..."
